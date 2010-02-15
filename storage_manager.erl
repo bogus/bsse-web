@@ -90,7 +90,6 @@ code_change(_OldVsn, State, _Extra) ->
     	{ok, State}.
 
 get_record_fields(Record) ->
-	erlang:display(Record),
 	if
 		(Record == user) or (is_record(Record, user)) -> 
 			record_info(fields, user)
