@@ -11,11 +11,7 @@
 %% API
 -export([start_link/0, 
 	stop/0,
-	get_objects/1,
-	run_transaction/1,
-	insert_object/1,
-	update_object/1,
-	delete_object/1]).
+	list_users/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -30,42 +26,41 @@
 -record(state, {id=0}).
 
 start_link() -> 
-	gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+		gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 stop() ->
-    	gen_server:call({local,?MODULE}, stop).
+		gen_server:call({local,?MODULE}, stop).
 
-get_objects(Function) ->
-        gen_server:call(?MODULE, {get_objects, Function}).
-run_transaction(Function) ->
-        gen_server:call(?MODULE, {run_transaction, Function}).
-insert_object(Function) ->
-        gen_server:call(?MODULE, {run_transaction, Function}).
-update_object(Function) ->
-        gen_server:call(?MODULE, {run_transaction, Function}).
-delete_object(Function) ->
-        gen_server:call(?MODULE, {run_transaction, Function}).
+list_users() ->
+        gen_server:call(?MODULE, list_users).
 
 init([]) ->
 	mnesia:create_schema([node()]),
-        mnesia:start(),
-        try
-                mnesia:table_info(user, type)
-        catch
-                exit: _->
-                        mnesia:create_table(user,[{attributes, record_info(fields, user)},
-                                                                {type, bag},
-                                                                {disc_copies, [node()]}])
-        end,	
-    	{ok, #state{}}.
+	mnesia:start(),
+	try
+		mnesia:table_info(user, type)
+	catch
+		exit: _->
+			mnesia:create_table(user,
+					[{attributes, 
+						record_info(fields, user)},
+						{type, bag},
+						{disc_copies, [node()]}])
+	end,	
+	{ok, #state{}}.
 
-handle_call({get_objects, Function}, _From, State) ->
-	{atomic, Users} = mnesia:transaction(Function),
+handle_call(list_users, _From, State) ->
+	F = fun() ->
+			Query = qlc:q([{object, <<"User">>,
+							[{username, M#user.username}, 
+							{name, M#user.realname}, 
+							{email, M#user.email}, 
+							{password, M#user.password}]} 
+							|| M <- mnesia:table(user)]),
+			qlc:e(Query)
+		end,
+	{atomic, Users} = mnesia:transaction(F),
 	{reply, Users, State};
-
-handle_call({run_transaction, Function}, _From, State) ->
-	mnesia:transaction(Function),
-	{reply, [], State};		
 
 handle_call(stop, _From, State) ->
     	{stop, normalStop, State}.

@@ -2,14 +2,8 @@
 -compile(export_all).
 -include("bsse_records.hrl").
 
- 
-getData() ->
-	F = fun() ->
-                Query = qlc:q([{object, <<"User">>,[{username, M#user.username}, {name, M#user.realname}, {email, M#user.email}, {password, M#user.password}]} || M <- mnesia:table(user)]),
-                Results = qlc:e(Query),
-                Results
-        end,
-	storage_manager:get_objects(F).	
+listObjects() ->
+	storage_manager:list_users().	
 
 insertData(Object) ->
 	erlang:display(Object).		
