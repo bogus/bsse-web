@@ -63,6 +63,9 @@ handle_call({list_objects, RecordAtom}, _From, State) ->
 	{atomic, Objects} = mnesia:transaction(F),
 	{reply, Objects, State};
 
+handle_call({save_object, undefined}, _From, State) ->
+    {reply, undefined, State};
+
 handle_call({save_object, Object}, _From, State) ->
 	R = object_to_record(Object),
         F = fun() ->
