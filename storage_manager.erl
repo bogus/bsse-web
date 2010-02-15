@@ -12,7 +12,8 @@
 -export([start_link/0, 
 	stop/0,
 	list_objects/1,
-	save_object/1]).
+	save_object/1,
+	delete_object/1]).
 
 -compile(export_all).
 
@@ -39,6 +40,9 @@ list_objects(RecordAtom) ->
 
 save_object(Object) ->
         gen_server:call(?MODULE, {save_object, Object}).
+
+delete_object(Object) ->
+        gen_server:call(?MODULE, {delete_object, Object}).
 
 init([]) ->
 	mnesia:create_schema([node()]),
@@ -72,7 +76,15 @@ handle_call({save_object, Object}, _From, State) ->
 			mnesia:write(R)
                 end,
 	mnesia:transaction(F),
-    {reply, ok, State};
+	{reply, Object, State};
+
+handle_call({delete_object, Object}, _From, State) ->
+        R = object_to_record(Object),
+        F = fun() ->
+                        mnesia:delete_object(R)
+                end,
+        mnesia:transaction(F),
+        {reply, Object, State};
 
 handle_call(stop, _From, State) ->
     	{stop, normalStop, State}.
@@ -90,6 +102,7 @@ code_change(_OldVsn, State, _Extra) ->
     	{ok, State}.
 
 get_record_fields(Record) ->
+	erlang:display(Record),
 	if
 		(Record == user) or (is_record(Record, user)) -> 
 			record_info(fields, user)
