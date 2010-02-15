@@ -3,6 +3,6 @@
 
 -include_lib("stdlib/include/qlc.hrl").
 
--record(user, {id, realname, username, email, password}).
+-record(user, {id, username, name, email, password}).
 
 -endif.

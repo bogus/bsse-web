@@ -11,7 +11,8 @@
 %% API
 -export([start_link/0, 
 	stop/0,
-	list_objects/1]).
+	list_objects/1,
+	save_object/1]).
 
 -compile(export_all).
 
@@ -36,6 +37,9 @@ stop() ->
 list_objects(RecordAtom) ->
         gen_server:call(?MODULE, {list_objects, RecordAtom}).
 
+save_object(Object) ->
+        gen_server:call(?MODULE, {save_object, Object}).
+
 init([]) ->
 	mnesia:create_schema([node()]),
 	mnesia:start(),
@@ -58,6 +62,14 @@ handle_call({list_objects, RecordAtom}, _From, State) ->
 		end,
 	{atomic, Objects} = mnesia:transaction(F),
 	{reply, Objects, State};
+
+handle_call({save_object, Object}, _From, State) ->
+	R = object_to_record(Object),
+        F = fun() ->
+			mnesia:write(R)
+                end,
+	mnesia:transaction(F),
+        {reply, Object, State};
 
 handle_call(stop, _From, State) ->
     	{stop, normalStop, State}.
