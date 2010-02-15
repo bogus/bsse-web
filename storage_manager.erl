@@ -69,7 +69,7 @@ handle_call({save_object, Object}, _From, State) ->
 			mnesia:write(R)
                 end,
 	mnesia:transaction(F),
-        {reply, Object, State};
+    {reply, ok, State};
 
 handle_call(stop, _From, State) ->
     	{stop, normalStop, State}.
