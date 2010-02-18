@@ -1,7 +1,8 @@
 ERL=erl
 ERLC=erlc
 ERLCFLAGS+=-W +debug_info
-ERLS=users.erl storage_manager.erl 
+ERLS=users.erl file_fingerprinting.erl ip_management.erl \
+regex_category.erl storage_manager.erl 
 BEAMS=$(ERLS:.erl=.beam)
 HTTPDIR=/opt/erlang/lib/erlang/lib/http
 

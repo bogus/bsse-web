@@ -13,7 +13,8 @@
 	stop/0,
 	list_objects/1,
 	save_object/1,
-	delete_object/1]).
+	delete_object/1,
+	update_object/2]).
 
 -compile(export_all).
 
@@ -44,18 +45,39 @@ save_object(Object) ->
 delete_object(Object) ->
         gen_server:call(?MODULE, {delete_object, Object}).
 
+update_object(Object, RecordAtom) ->
+        gen_server:call(?MODULE, {update_object, Object, RecordAtom}).
+
 init([]) ->
 	mnesia:create_schema([node()]),
 	mnesia:start(),
 	try
-		mnesia:table_info(user, type)
+		mnesia:table_info(user, type),
+		mnesia:table_info(file_fingerprint, type),
+		mnesia:table_info(regex, type),
+		mnesia:table_info(ip_data, type)
 	catch
 		exit: _->
 			mnesia:create_table(user,
 					[{attributes, 
 						record_info(fields, user)},
-						{type, bag},
-						{disc_copies, [node()]}])
+						{type, set},
+						{disc_copies, [node()]}]),
+			mnesia:create_table(file_fingerprint,
+                                        [{attributes,
+                                                record_info(fields, file_fingerprint)},
+                                                {type, bag},
+                                                {disc_copies, [node()]}]),
+			mnesia:create_table(regex,
+                                        [{attributes,
+                                                record_info(fields, regex)},
+                                                {type, bag},
+                                                {disc_copies, [node()]}]),
+			mnesia:create_table(ip_data,
+                                        [{attributes,
+                                                record_info(fields, ip_data)},
+                                                {type, bag},
+                                                {disc_copies, [node()]}])
 	end,	
 	{ok, #state{}}.
 
@@ -86,6 +108,14 @@ handle_call({delete_object, Object}, _From, State) ->
         mnesia:transaction(F),
         {reply, Object, State};
 
+handle_call({update_object, Object, RecordAtom}, _From, State) ->
+        R = object_to_record(Object),
+        F = fun() ->
+			erlang:display(R)
+                end,
+        mnesia:transaction(F),
+        {reply, Object, State};
+
 handle_call(stop, _From, State) ->
     	{stop, normalStop, State}.
 
@@ -105,7 +135,13 @@ get_record_fields(Record) ->
 	erlang:display(Record),
 	if
 		(Record == user) or (is_record(Record, user)) -> 
-			record_info(fields, user)
+			record_info(fields, user);
+		(Record == regex) or (is_record(Record, regex)) -> 
+			record_info(fields, regex);
+		(Record == ip_data) or (is_record(Record, ip_data)) -> 
+			record_info(fields, ip_data);
+		(Record == file_fingerprint) or (is_record(Record, file_fingerprint)) ->
+                        record_info(fields, file_fingerprint)
 	end.
 
 record_atom_to_object_name(RecAtom) ->
