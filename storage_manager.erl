@@ -55,7 +55,8 @@ init([]) ->
 		mnesia:table_info(user, type),
 		mnesia:table_info(file_fingerprint, type),
 		mnesia:table_info(regex, type),
-		mnesia:table_info(ip_data, type)
+		mnesia:table_info(ip_data, type),
+		mnesia:table_info(node_data, type)
 	catch
 		exit: _->
 			mnesia:create_table(user,
@@ -77,6 +78,27 @@ init([]) ->
                                         [{attributes,
                                                 record_info(fields, ip_data)},
                                                 {type, bag},
+                                                {disc_copies, [node()]}]),
+			mnesia:create_table(node_data,
+                                        [{attributes,
+                                                record_info(fields, node_data)},
+                                                {type, bag},
+                                                {disc_copies, [node()]}]),
+			mnesia:create_table(general_option,
+                                        [{attributes,
+                                                record_info(fields, general_option)},
+                                                {type, bag},
+                                                {disc_copies, [node()]}]),
+			mnesia:transaction(fun()->mnesia:write({general_option,0,1,100,false,1,<<"update.medratech.com">>,false,<<"admin@corporation.com">>,<<"support@medratech.com">>, false, <<"username">>,<<"password">>,false,<<"remotelog.company.com">>}) end),
+			mnesia:create_table(login_data,
+                                        [{attributes,
+                                                record_info(fields, login_data)},
+                                                {type, bag},
+                                                {disc_copies, [node()]}]),
+			mnesia:create_table(service_log,
+                                        [{attributes,
+                                                record_info(fields, service_log)},
+                                                {type, bag},
                                                 {disc_copies, [node()]}])
 	end,	
 	{ok, #state{}}.
@@ -87,6 +109,7 @@ handle_call({list_objects, RecordAtom}, _From, State) ->
 			qlc:e(Query)
 		end,
 	{atomic, Objects} = mnesia:transaction(F),
+	erlang:display(Objects),
 	{reply, Objects, State};
 
 handle_call({save_object, undefined}, _From, State) ->
@@ -141,7 +164,15 @@ get_record_fields(Record) ->
 		(Record == ip_data) or (is_record(Record, ip_data)) -> 
 			record_info(fields, ip_data);
 		(Record == file_fingerprint) or (is_record(Record, file_fingerprint)) ->
-                        record_info(fields, file_fingerprint)
+                        record_info(fields, file_fingerprint);
+		(Record == node_data) or (is_record(Record, node_data)) ->
+                        record_info(fields, node_data);
+		(Record == general_option) or (is_record(Record, general_option)) ->
+                        record_info(fields, general_option);
+		(Record == login_data) or (is_record(Record, login_data)) ->
+                        record_info(fields, login_data);
+		(Record == service_log) or (is_record(Record, service_log)) ->
+                        record_info(fields, service_log)
 	end.
 
 record_atom_to_object_name(RecAtom) ->
