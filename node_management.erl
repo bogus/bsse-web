@@ -12,6 +12,7 @@ insertData(Object) ->
 deleteData(Object) ->
 	Object,
 	ok.
+
 updateData(Object) ->
-	storage_manager:update_object(Object, node_data).
+	storage_manager:update_object(Object).
 

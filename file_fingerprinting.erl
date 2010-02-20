@@ -12,5 +12,5 @@ deleteData(Object) ->
 	storage_manager:delete_object(Object).		
 
 updateData(Object) ->
-	storage_manager:update_object(Object, file_fingerprint).
+	storage_manager:update_object(Object).
 

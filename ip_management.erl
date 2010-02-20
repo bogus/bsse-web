@@ -12,5 +12,5 @@ deleteData(Object) ->
 	storage_manager:delete_object(Object).		
 
 updateData(Object) ->
-	storage_manager:update_object(Object, ip_data).
+	storage_manager:update_object(Object).
 
