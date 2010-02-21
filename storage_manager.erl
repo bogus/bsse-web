@@ -16,8 +16,6 @@
 	delete_object/1,
 	update_object/1]).
 
--compile(export_all).
-
 %% gen_server callbacks
 -export([init/1,
 	handle_call/3,
@@ -53,7 +51,7 @@ init([]) ->
 	mnesia:create_schema([node()]),
 	mnesia:start(),
 
-	start_table(unique_ids),
+	start_table({unique_ids, set}),
 	start_tables(?TABLES),
 
 	{ok, #state{}}.
@@ -194,10 +192,6 @@ start_table({RecordAtom, TableType, InitFun}) ->
 						get_record_fields(RecordAtom) },
 						{type, TableType},
 						{disc_copies, [node()]}]),
-			F = fun() ->
-					mnesia:write(#unique_ids{type=RecordAtom, id=1})
-				end,
-			transaction(F),
 
 			transaction(InitFun)
 	end.
