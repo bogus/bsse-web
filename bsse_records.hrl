@@ -15,6 +15,11 @@
 -record(general_option, {id, dbbackupfreq, totalconn, checkupdate, updatecheckfreq, updateserver, sendfeedback, fbsenderemail, fbreceiveremail, enablelegallog, legallogusername, legallogpassword, enableremotelog, remotelogserver}).
 -record(login_data, {date, username}).
 -record(service_log, {date, log}).
+-record(log_search_criteria, {ip, ip_cat_enabled, ip_category, file_enabled, file_category, regex_enabled, regex_category, protocol, startdate, enddate}).
+-record(dashboard_user_log, {user, count}).
+-record(dashboard_category_log, {category, count}).
+-record(dashboard_protocol_log, {protocol, count}).
+-record(dashboard_system_data, {load, memory, connection}).
 
 -define(TABLES, [user,
 		file_fingerprint,
@@ -32,7 +37,12 @@
 				)
 			end},
 		{login_data, bag},
-		{service_log, bag}
+		{service_log, bag},
+		{log_search_criteria, bag},
+		{dashboard_user_log, bag},
+		{dashboard_category_log, bag},
+		{dashboard_protocol_log, bag},
+		{dashboard_system_data, bag, fun() -> mnesia:write({dashboard_system_data, 72,51,9468}) end}
 	]).
 
 get_record_fields(Record) ->
@@ -45,7 +55,12 @@ get_record_fields(Record) ->
 		?RECINFO(node_data);
 		?RECINFO(general_option);
 		?RECINFO(login_data);
-		?RECINFO(service_log)
+		?RECINFO(service_log);
+		?RECINFO(dashboard_user_log);
+		?RECINFO(dashboard_category_log);
+		?RECINFO(dashboard_protocol_log);
+		?RECINFO(dashboard_system_data);
+		?RECINFO(log_search_criteria)
 	end.
 
 -endif.

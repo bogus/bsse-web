@@ -74,7 +74,7 @@ handle_call({save_object, Object}, _From, State) ->
 			mnesia:write(R)
 		end,
 	transaction(F),
-	{reply, ok, State};
+	{reply, Object, State};
 
 handle_call({delete_object, Object}, _From, State) ->
 	R = object_to_record(Object),
@@ -82,7 +82,7 @@ handle_call({delete_object, Object}, _From, State) ->
 			mnesia:delete_object(R)
 		end,
 	transaction(F),
-	{reply, ok, State};
+	{reply, Object, State};
 
 handle_call({update_object, Object}, _From, State) ->
 	R = object_to_record(Object),
@@ -90,7 +90,7 @@ handle_call({update_object, Object}, _From, State) ->
 			mnesia:write(R)
 		end,
 	transaction(F),
-	{reply, ok, State};
+	{reply, Object, State};
 
 handle_call(stop, _From, State) ->
 	{stop, normalStop, State}.
