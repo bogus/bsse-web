@@ -10,12 +10,18 @@
 -record(user, {id, username, name, email, password}).
 -record(file_fingerprint, {id, filename, hash, description, date}).
 -record(regex, {id, name, regexval, description}).
+-record(mime_type_group_data, {id, name, crosscount}).
+-record(mime_type_data, {id, fileext, mimetype}).
+-record(mime_type_cross_data, {id, catid, fileext, mimetype}).
+-record(domain_group_data, {id, name}).
+-record(domain_cross_data, {id, catid, domain}).
 -record(ip_data, {id, name, ipval, subnetval}).
+-record(time_data, {id, name, starttime, endtime, dayofweek}).
 -record(node_data, {id, name, status, load}).
 -record(general_option, {id, dbbackupfreq, totalconn, checkupdate, updatecheckfreq, updateserver, sendfeedback, fbsenderemail, fbreceiveremail, enablelegallog, legallogusername, legallogpassword, enableremotelog, remotelogserver}).
 -record(login_data, {date, username}).
 -record(service_log, {date, log}).
--record(log_search_criteria, {ip, ip_cat_enabled, ip_category, file_enabled, file_category, regex_enabled, regex_category, protocol, startdate, enddate}).
+-record(log_search_criteria, {ip, ip_cat_enabled, ip_category, protocol, startdate, enddate}).
 -record(dashboard_user_log, {user, count}).
 -record(dashboard_category_log, {category, count}).
 -record(dashboard_protocol_log, {protocol, count}).
@@ -24,7 +30,13 @@
 -define(TABLES, [user,
 		file_fingerprint,
 		regex,
+		mime_type_data,
+		mime_type_cross_data,
+		mime_type_group_data,
+		domain_group_data,
+		domain_cross_data,
 		ip_data,
+		time_data,
 		node_data,
 		{general_option, ordered_set, fun() ->
 				mnesia:write(
@@ -50,7 +62,13 @@ get_record_fields(Record) ->
 		?RECINFO(unique_ids);
 		?RECINFO(user);
 		?RECINFO(regex);
+		?RECINFO(mime_type_data);
+		?RECINFO(mime_type_cross_data);
+		?RECINFO(mime_type_group_data);
+		?RECINFO(domain_cross_data);
+		?RECINFO(domain_group_data);
 		?RECINFO(ip_data);
+		?RECINFO(time_data);
 		?RECINFO(file_fingerprint);
 		?RECINFO(node_data);
 		?RECINFO(general_option);

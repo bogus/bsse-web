@@ -65,6 +65,15 @@ handle_call({list_objects, RecordAtom}, _From, State) ->
 	{atomic, Objects} = transaction(F),
 	{reply, Objects, State};
 
+handle_call({list_objects, RecordAtom, CategoryId}, _From, State) ->
+	F = fun() ->
+			Query = qlc:q([record_to_object(M) || M <- mnesia:table(RecordAtom), 
+				M#RECINFO(RecordAtom).catid == CategoryId]),
+			qlc:e(Query)
+		end,
+	{atomic, Objects} = transaction(F),
+	{reply, Objects, State};
+
 handle_call({save_object, undefined}, _From, State) ->
     {reply, undefined, State};
 
